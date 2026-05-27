@@ -4,15 +4,41 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DiceFall - Помощник Мастера Подземелий D&D 5e</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="/static/css/styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
 </head>
 <body>
     <header>
         <h1>🎲 DiceFall</h1>
         <p class="subtitle">Помощник Мастера Подземелий D&D 5e</p>
+        <div id="roomInfo" class="room-info" style="display: none;">
+            <span>Комната: <strong id="roomCodeDisplay"></strong></span>
+            <span id="userTypeDisplay"></span>
+        </div>
     </header>
 
-    <main>
+    <!-- Экран входа/создания комнаты -->
+    <section id="lobbySection">
+        <div class="lobby-container">
+            <h2>Добро пожаловать в DiceFall</h2>
+            <div class="lobby-options">
+                <div class="lobby-card">
+                    <h3>Создать комнату (Мастер)</h3>
+                    <input type="text" id="masterName" placeholder="Ваше имя как Мастера">
+                    <button onclick="createRoom()">Создать комнату</button>
+                </div>
+                <div class="lobby-card">
+                    <h3>Присоединиться к комнате (Игрок)</h3>
+                    <input type="text" id="playerName" placeholder="Ваше имя">
+                    <input type="text" id="roomCodeInput" placeholder="Код комнаты" maxlength="6">
+                    <button onclick="joinRoom()">Присоединиться</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Основной интерфейс -->
+    <main id="mainInterface" style="display: none;">
         <nav class="tabs">
             <button class="tab-btn active" data-tab="basic">Основное</button>
             <button class="tab-btn" data-tab="abilities">Характеристики</button>
@@ -21,6 +47,8 @@
             <button class="tab-btn" data-tab="features">Особенности</button>
             <button class="tab-btn" data-tab="inventory">Инвентарь</button>
             <button class="tab-btn" data-tab="spells">Заклинания</button>
+            <button class="tab-btn" data-tab="dice">🎲 Броски</button>
+            <button class="tab-btn" data-tab="dm" id="dmTab" style="display: none;">👑 Мастер</button>
         </nav>
 
         <form id="characterSheet">
@@ -52,7 +80,8 @@
                     </div>
                     <div class="form-group">
                         <label for="charLevel">Уровень</label>
-                        <input type="number" id="charLevel" name="charLevel" min="1" max="20" value="1">
+                        <input type="number" id="charLevel" name="charLevel" min="1" max="20" value="1" readonly>
+                        <small id="levelSource">Рассчитывается автоматически</small>
                     </div>
                     <div class="form-group">
                         <label for="charRace">Раса</label>
@@ -87,12 +116,13 @@
                     <div class="form-group">
                         <label for="charExp">Опыт (XP)</label>
                         <input type="number" id="charExp" name="charExp" min="0" value="0">
+                        <small id="xpToNextLevel"></small>
                     </div>
                     <div class="form-group">
                         <label for="charBackground">Предыстория</label>
                         <input type="text" id="charBackground" name="charBackground" placeholder="Предыстория персонажа">
                     </div>
-                    <div class="form-group">
+                    <div class="form-group full-width">
                         <label for="charLanguages">Языки</label>
                         <textarea id="charLanguages" name="charLanguages" rows="3" placeholder="Перечислите языки"></textarea>
                     </div>
@@ -107,63 +137,69 @@
                         <label>Сила (STR)</label>
                         <input type="number" id="strScore" name="strScore" min="1" max="30" value="10" onchange="calculateModifiers()">
                         <div class="modifier" id="strMod">+0</div>
+                        <button type="button" class="check-btn" onclick="makeAbilityCheck('str', 'Сила')">Проверка</button>
                     </div>
                     <div class="ability-score">
                         <label>Ловкость (DEX)</label>
                         <input type="number" id="dexScore" name="dexScore" min="1" max="30" value="10" onchange="calculateModifiers()">
                         <div class="modifier" id="dexMod">+0</div>
+                        <button type="button" class="check-btn" onclick="makeAbilityCheck('dex', 'Ловкость')">Проверка</button>
                     </div>
                     <div class="ability-score">
                         <label>Телосложение (CON)</label>
                         <input type="number" id="conScore" name="conScore" min="1" max="30" value="10" onchange="calculateModifiers()">
                         <div class="modifier" id="conMod">+0</div>
+                        <button type="button" class="check-btn" onclick="makeAbilityCheck('con', 'Телосложение')">Проверка</button>
                     </div>
                     <div class="ability-score">
                         <label>Интеллект (INT)</label>
                         <input type="number" id="intScore" name="intScore" min="1" max="30" value="10" onchange="calculateModifiers()">
                         <div class="modifier" id="intMod">+0</div>
+                        <button type="button" class="check-btn" onclick="makeAbilityCheck('int', 'Интеллект')">Проверка</button>
                     </div>
                     <div class="ability-score">
                         <label>Мудрость (WIS)</label>
                         <input type="number" id="wisScore" name="wisScore" min="1" max="30" value="10" onchange="calculateModifiers()">
                         <div class="modifier" id="wisMod">+0</div>
+                        <button type="button" class="check-btn" onclick="makeAbilityCheck('wis', 'Мудрость')">Проверка</button>
                     </div>
                     <div class="ability-score">
                         <label>Харизма (CHA)</label>
                         <input type="number" id="chaScore" name="chaScore" min="1" max="30" value="10" onchange="calculateModifiers()">
                         <div class="modifier" id="chaMod">+0</div>
+                        <button type="button" class="check-btn" onclick="makeAbilityCheck('cha', 'Харизма')">Проверка</button>
                     </div>
                 </div>
 
                 <h3>Спасброски</h3>
                 <div class="saving-throws">
                     <div class="save-item">
-                        <input type="checkbox" id="strSaveProf" name="strSaveProf">
+                        <input type="checkbox" id="strSaveProf" name="strSaveProf" onchange="calculateModifiers()">
                         <label for="strSaveProf">Сила</label>
                         <span class="save-bonus" id="strSaveBonus">+0</span>
                     </div>
                     <div class="save-item">
-                        <input type="checkbox" id="dexSaveProf" name="dexSaveProf">
+                        <input type="checkbox" id="dexSaveProf" name="dexSaveProf" onchange="calculateModifiers()">
                         <label for="dexSaveProf">Ловкость</label>
                         <span class="save-bonus" id="dexSaveBonus">+0</span>
                     </div>
                     <div class="save-item">
-                        <input type="checkbox" id="conSaveProf" name="conSaveProf">
+                        <input type="checkbox" id="conSaveProf" name="conSaveProf" onchange="calculateModifiers()">
                         <label for="conSaveProf">Телосложение</label>
                         <span class="save-bonus" id="conSaveBonus">+0</span>
                     </div>
                     <div class="save-item">
-                        <input type="checkbox" id="intSaveProf" name="intSaveProf">
+                        <input type="checkbox" id="intSaveProf" name="intSaveProf" onchange="calculateModifiers()">
                         <label for="intSaveProf">Интеллект</label>
                         <span class="save-bonus" id="intSaveBonus">+0</span>
                     </div>
                     <div class="save-item">
-                        <input type="checkbox" id="wisSaveProf" name="wisSaveProf">
+                        <input type="checkbox" id="wisSaveProf" name="wisSaveProf" onchange="calculateModifiers()">
                         <label for="wisSaveProf">Мудрость</label>
                         <span class="save-bonus" id="wisSaveBonus">+0</span>
                     </div>
                     <div class="save-item">
-                        <input type="checkbox" id="chaSaveProf" name="chaSaveProf">
+                        <input type="checkbox" id="chaSaveProf" name="chaSaveProf" onchange="calculateModifiers()">
                         <label for="chaSaveProf">Харизма</label>
                         <span class="save-bonus" id="chaSaveBonus">+0</span>
                     </div>
@@ -261,200 +297,178 @@
                 <h2>Навыки</h2>
                 <div class="skills-grid">
                     <div class="skill-item">
-                        <input type="checkbox" id="skillAcrobatics" name="skillAcrobatics">
+                        <input type="checkbox" id="skillAcrobatics" name="skillAcrobatics" onchange="calculateModifiers()">
                         <label for="skillAcrobatics">Акробатика (DEX)</label>
                         <span class="skill-bonus" id="acrobaticsBonus">+0</span>
+                        <button type="button" class="check-btn-small" onclick="makeSkillCheck('acrobatics', 'Акробатика', 'dex')">🎲</button>
                     </div>
                     <div class="skill-item">
-                        <input type="checkbox" id="skillAnimalHandling" name="skillAnimalHandling">
+                        <input type="checkbox" id="skillAnimalHandling" name="skillAnimalHandling" onchange="calculateModifiers()">
                         <label for="skillAnimalHandling">Обращение с животными (WIS)</label>
                         <span class="skill-bonus" id="animalHandlingBonus">+0</span>
+                        <button type="button" class="check-btn-small" onclick="makeSkillCheck('animalHandling', 'Обращение с животными', 'wis')">🎲</button>
                     </div>
                     <div class="skill-item">
-                        <input type="checkbox" id="skillArcana" name="skillArcana">
+                        <input type="checkbox" id="skillArcana" name="skillArcana" onchange="calculateModifiers()">
                         <label for="skillArcana">Магия (INT)</label>
                         <span class="skill-bonus" id="arcanaBonus">+0</span>
+                        <button type="button" class="check-btn-small" onclick="makeSkillCheck('arcana', 'Магия', 'int')">🎲</button>
                     </div>
                     <div class="skill-item">
-                        <input type="checkbox" id="skillAthletics" name="skillAthletics">
+                        <input type="checkbox" id="skillAthletics" name="skillAthletics" onchange="calculateModifiers()">
                         <label for="skillAthletics">Атлетика (STR)</label>
                         <span class="skill-bonus" id="athleticsBonus">+0</span>
+                        <button type="button" class="check-btn-small" onclick="makeSkillCheck('athletics', 'Атлетика', 'str')">🎲</button>
                     </div>
                     <div class="skill-item">
-                        <input type="checkbox" id="skillDeception" name="skillDeception">
+                        <input type="checkbox" id="skillDeception" name="skillDeception" onchange="calculateModifiers()">
                         <label for="skillDeception">Обман (CHA)</label>
                         <span class="skill-bonus" id="deceptionBonus">+0</span>
+                        <button type="button" class="check-btn-small" onclick="makeSkillCheck('deception', 'Обман', 'cha')">🎲</button>
                     </div>
                     <div class="skill-item">
-                        <input type="checkbox" id="skillHistory" name="skillHistory">
+                        <input type="checkbox" id="skillHistory" name="skillHistory" onchange="calculateModifiers()">
                         <label for="skillHistory">История (INT)</label>
                         <span class="skill-bonus" id="historyBonus">+0</span>
+                        <button type="button" class="check-btn-small" onclick="makeSkillCheck('history', 'История', 'int')">🎲</button>
                     </div>
                     <div class="skill-item">
-                        <input type="checkbox" id="skillInsight" name="skillInsight">
+                        <input type="checkbox" id="skillInsight" name="skillInsight" onchange="calculateModifiers()">
                         <label for="skillInsight">Проницательность (WIS)</label>
                         <span class="skill-bonus" id="insightBonus">+0</span>
+                        <button type="button" class="check-btn-small" onclick="makeSkillCheck('insight', 'Проницательность', 'wis')">🎲</button>
                     </div>
                     <div class="skill-item">
-                        <input type="checkbox" id="skillIntimidation" name="skillIntimidation">
+                        <input type="checkbox" id="skillIntimidation" name="skillIntimidation" onchange="calculateModifiers()">
                         <label for="skillIntimidation">Запугивание (CHA)</label>
                         <span class="skill-bonus" id="intimidationBonus">+0</span>
+                        <button type="button" class="check-btn-small" onclick="makeSkillCheck('intimidation', 'Запугивание', 'cha')">🎲</button>
                     </div>
                     <div class="skill-item">
-                        <input type="checkbox" id="skillInvestigation" name="skillInvestigation">
+                        <input type="checkbox" id="skillInvestigation" name="skillInvestigation" onchange="calculateModifiers()">
                         <label for="skillInvestigation">Анализ (INT)</label>
                         <span class="skill-bonus" id="investigationBonus">+0</span>
+                        <button type="button" class="check-btn-small" onclick="makeSkillCheck('investigation', 'Анализ', 'int')">🎲</button>
                     </div>
                     <div class="skill-item">
-                        <input type="checkbox" id="skillMedicine" name="skillMedicine">
+                        <input type="checkbox" id="skillMedicine" name="skillMedicine" onchange="calculateModifiers()">
                         <label for="skillMedicine">Медицина (WIS)</label>
                         <span class="skill-bonus" id="medicineBonus">+0</span>
+                        <button type="button" class="check-btn-small" onclick="makeSkillCheck('medicine', 'Медицина', 'wis')">🎲</button>
                     </div>
                     <div class="skill-item">
-                        <input type="checkbox" id="skillNature" name="skillNature">
+                        <input type="checkbox" id="skillNature" name="skillNature" onchange="calculateModifiers()">
                         <label for="skillNature">Природа (INT)</label>
                         <span class="skill-bonus" id="natureBonus">+0</span>
+                        <button type="button" class="check-btn-small" onclick="makeSkillCheck('nature', 'Природа', 'int')">🎲</button>
                     </div>
                     <div class="skill-item">
-                        <input type="checkbox" id="skillPerception" name="skillPerception">
+                        <input type="checkbox" id="skillPerception" name="skillPerception" onchange="calculateModifiers()">
                         <label for="skillPerception">Внимательность (WIS)</label>
                         <span class="skill-bonus" id="perceptionBonus">+0</span>
+                        <button type="button" class="check-btn-small" onclick="makeSkillCheck('perception', 'Внимательность', 'wis')">🎲</button>
                     </div>
                     <div class="skill-item">
-                        <input type="checkbox" id="skillPerformance" name="skillPerformance">
+                        <input type="checkbox" id="skillPerformance" name="skillPerformance" onchange="calculateModifiers()">
                         <label for="skillPerformance">Выступление (CHA)</label>
                         <span class="skill-bonus" id="performanceBonus">+0</span>
+                        <button type="button" class="check-btn-small" onclick="makeSkillCheck('performance', 'Выступление', 'cha')">🎲</button>
                     </div>
                     <div class="skill-item">
-                        <input type="checkbox" id="skillPersuasion" name="skillPersuasion">
+                        <input type="checkbox" id="skillPersuasion" name="skillPersuasion" onchange="calculateModifiers()">
                         <label for="skillPersuasion">Убеждение (CHA)</label>
                         <span class="skill-bonus" id="persuasionBonus">+0</span>
+                        <button type="button" class="check-btn-small" onclick="makeSkillCheck('persuasion', 'Убеждение', 'cha')">🎲</button>
                     </div>
                     <div class="skill-item">
-                        <input type="checkbox" id="skillReligion" name="skillReligion">
+                        <input type="checkbox" id="skillReligion" name="skillReligion" onchange="calculateModifiers()">
                         <label for="skillReligion">Религия (INT)</label>
                         <span class="skill-bonus" id="religionBonus">+0</span>
+                        <button type="button" class="check-btn-small" onclick="makeSkillCheck('religion', 'Религия', 'int')">🎲</button>
                     </div>
                     <div class="skill-item">
-                        <input type="checkbox" id="skillSleightOfHand" name="skillSleightOfHand">
+                        <input type="checkbox" id="skillSleightOfHand" name="skillSleightOfHand" onchange="calculateModifiers()">
                         <label for="skillSleightOfHand">Ловкость рук (DEX)</label>
                         <span class="skill-bonus" id="sleightOfHandBonus">+0</span>
+                        <button type="button" class="check-btn-small" onclick="makeSkillCheck('sleightOfHand', 'Ловкость рук', 'dex')">🎲</button>
                     </div>
                     <div class="skill-item">
-                        <input type="checkbox" id="skillStealth" name="skillStealth">
+                        <input type="checkbox" id="skillStealth" name="skillStealth" onchange="calculateModifiers()">
                         <label for="skillStealth">Скрытность (DEX)</label>
                         <span class="skill-bonus" id="stealthBonus">+0</span>
+                        <button type="button" class="check-btn-small" onclick="makeSkillCheck('stealth', 'Скрытность', 'dex')">🎲</button>
                     </div>
                     <div class="skill-item">
-                        <input type="checkbox" id="skillSurvival" name="skillSurvival">
+                        <input type="checkbox" id="skillSurvival" name="skillSurvival" onchange="calculateModifiers()">
                         <label for="skillSurvival">Выживание (WIS)</label>
                         <span class="skill-bonus" id="survivalBonus">+0</span>
+                        <button type="button" class="check-btn-small" onclick="makeSkillCheck('survival', 'Выживание', 'wis')">🎲</button>
                     </div>
                 </div>
 
                 <div class="passive-perception">
                     <h3>Пассивная внимательность</h3>
-                    <div class="form-group">
-                        <label for="passivePerception">Passive Perception</label>
-                        <input type="number" id="passivePerception" name="passivePerception" value="10" readonly>
-                    </div>
-                </div>
-
-                <div class="proficiency-section">
-                    <h3>Бонус мастерства</h3>
-                    <div class="form-group">
-                        <label for="proficiencyBonus">Бонус</label>
-                        <input type="number" id="proficiencyBonus" name="proficiencyBonus" value="2" readonly>
-                    </div>
+                    <div class="passive-value" id="passivePerception">10</div>
                 </div>
             </section>
 
             <!-- Особенности -->
             <section id="features" class="tab-content">
                 <h2>Особенности</h2>
-                
-                <div class="class-features">
-                    <h3>Классовые особенности</h3>
+                <div class="form-group">
+                    <label for="classFeatures">Классовые особенности</label>
                     <textarea id="classFeatures" name="classFeatures" rows="5" placeholder="Опишите классовые особенности"></textarea>
                 </div>
-
-                <div class="racial-features">
-                    <h3>Расовые особенности</h3>
+                <div class="form-group">
+                    <label for="racialFeatures">Расовые особенности</label>
                     <textarea id="racialFeatures" name="racialFeatures" rows="5" placeholder="Опишите расовые особенности"></textarea>
                 </div>
-
-                <div class="feats-section">
-                    <h3>Черты (Feats)</h3>
-                    <div id="featsList">
-                        <div class="feat-entry">
-                            <input type="text" name="featName[]" placeholder="Название черты">
-                            <textarea name="featDescription[]" placeholder="Описание" rows="2"></textarea>
-                            <button type="button" class="remove-btn" onclick="removeFeat(this)">×</button>
-                        </div>
-                    </div>
-                    <button type="button" class="add-btn" onclick="addFeat()">+ Добавить черту</button>
+                <div class="form-group">
+                    <label for="feats">Черты (Feats)</label>
+                    <textarea id="feats" name="feats" rows="5" placeholder="Опишите черты персонажа"></textarea>
                 </div>
             </section>
 
             <!-- Инвентарь -->
             <section id="inventory" class="tab-content">
                 <h2>Инвентарь и снаряжение</h2>
-                
-                <div class="money-section">
-                    <h3>Деньги</h3>
-                    <div class="money-inputs">
-                        <div class="form-group">
-                            <label for="goldPieces">Золото (GP)</label>
-                            <input type="number" id="goldPieces" name="goldPieces" min="0" value="0">
-                        </div>
-                        <div class="form-group">
-                            <label for="silverPieces">Серебро (SP)</label>
-                            <input type="number" id="silverPieces" name="silverPieces" min="0" value="0">
-                        </div>
-                        <div class="form-group">
-                            <label for="copperPieces">Медь (CP)</label>
-                            <input type="number" id="copperPieces" name="copperPieces" min="0" value="0">
-                        </div>
-                        <div class="form-group">
-                            <label for="electrumPieces">Электрум (EP)</label>
-                            <input type="number" id="electrumPieces" name="electrumPieces" min="0" value="0">
-                        </div>
-                        <div class="form-group">
-                            <label for="platinumPieces">Платина (PP)</label>
-                            <input type="number" id="platinumPieces" name="platinumPieces" min="0" value="0">
-                        </div>
-                    </div>
+                <div class="form-group">
+                    <label for="equipment">Снаряжение</label>
+                    <textarea id="equipment" name="equipment" rows="8" placeholder="Перечислите снаряжение персонажа"></textarea>
                 </div>
-
-                <div class="inventory-section">
-                    <h3>Предметы</h3>
-                    <div id="itemsList">
-                        <div class="item-entry">
-                            <input type="text" name="itemName[]" placeholder="Название предмета">
-                            <input type="number" name="itemQuantity[]" placeholder="Кол-во" min="1" value="1">
-                            <input type="text" name="itemWeight[]" placeholder="Вес (фн)">
-                            <button type="button" class="remove-btn" onclick="removeItem(this)">×</button>
-                        </div>
+                <h3>Деньги</h3>
+                <div class="currency-grid">
+                    <div class="form-group">
+                        <label for="gold">Золото (gp)</label>
+                        <input type="number" id="gold" name="gold" min="0" value="0">
                     </div>
-                    <button type="button" class="add-btn" onclick="addItem()">+ Добавить предмет</button>
-                </div>
-
-                <div class="equipment-section">
-                    <h3>Снаряжение</h3>
-                    <textarea id="equipment" name="equipment" rows="5" placeholder="Перечислите снаряжение"></textarea>
+                    <div class="form-group">
+                        <label for="silver">Серебро (sp)</label>
+                        <input type="number" id="silver" name="silver" min="0" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label for="copper">Медь (cp)</label>
+                        <input type="number" id="copper" name="copper" min="0" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label for="platinum">Платина (pp)</label>
+                        <input type="number" id="platinum" name="platinum" min="0" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label for="electrum">Электрум (ep)</label>
+                        <input type="number" id="electrum" name="electrum" min="0" value="0">
+                    </div>
                 </div>
             </section>
 
             <!-- Заклинания -->
             <section id="spells" class="tab-content">
                 <h2>Заклинания</h2>
-                
                 <div class="spellcasting-section">
-                    <h3>Заклинательная способность</h3>
                     <div class="form-group">
-                        <label for="spellAbility">Характеристика заклинаний</label>
-                        <select id="spellAbility" name="spellAbility">
-                            <option value="">Нет</option>
+                        <label for="spellcastingAbility">Характеристика заклинаний</label>
+                        <select id="spellcastingAbility" name="spellcastingAbility">
+                            <option value="">Не используется</option>
                             <option value="int">Интеллект</option>
                             <option value="wis">Мудрость</option>
                             <option value="cha">Харизма</option>
@@ -466,92 +480,124 @@
                     </div>
                     <div class="form-group">
                         <label for="spellAttackBonus">Бонус атаки заклинанием</label>
-                        <input type="number" id="spellAttackBonus" name="spellAttackBonus" readonly>
+                        <input type="number" id="spellAttackBonus" name="spellAttackBonus" value="0" readonly>
                     </div>
                 </div>
 
-                <div class="spell-slots-section">
-                    <h3>Ячейки заклинаний</h3>
-                    <div class="slots-grid">
-                        <div class="slot-item">
-                            <label>Уровень 1</label>
-                            <input type="number" id="slot1Total" name="slot1Total" min="0" max="10" placeholder="Всего" value="0">
-                            <input type="number" id="slot1Used" name="slot1Used" min="0" max="10" placeholder="Исп." value="0">
-                        </div>
-                        <div class="slot-item">
-                            <label>Уровень 2</label>
-                            <input type="number" id="slot2Total" name="slot2Total" min="0" max="10" placeholder="Всего" value="0">
-                            <input type="number" id="slot2Used" name="slot2Used" min="0" max="10" placeholder="Исп." value="0">
-                        </div>
-                        <div class="slot-item">
-                            <label>Уровень 3</label>
-                            <input type="number" id="slot3Total" name="slot3Total" min="0" max="10" placeholder="Всего" value="0">
-                            <input type="number" id="slot3Used" name="slot3Used" min="0" max="10" placeholder="Исп." value="0">
-                        </div>
-                        <div class="slot-item">
-                            <label>Уровень 4</label>
-                            <input type="number" id="slot4Total" name="slot4Total" min="0" max="10" placeholder="Всего" value="0">
-                            <input type="number" id="slot4Used" name="slot4Used" min="0" max="10" placeholder="Исп." value="0">
-                        </div>
-                        <div class="slot-item">
-                            <label>Уровень 5</label>
-                            <input type="number" id="slot5Total" name="slot5Total" min="0" max="10" placeholder="Всего" value="0">
-                            <input type="number" id="slot5Used" name="slot5Used" min="0" max="10" placeholder="Исп." value="0">
-                        </div>
-                        <div class="slot-item">
-                            <label>Уровень 6</label>
-                            <input type="number" id="slot6Total" name="slot6Total" min="0" max="10" placeholder="Всего" value="0">
-                            <input type="number" id="slot6Used" name="slot6Used" min="0" max="10" placeholder="Исп." value="0">
-                        </div>
-                        <div class="slot-item">
-                            <label>Уровень 7</label>
-                            <input type="number" id="slot7Total" name="slot7Total" min="0" max="10" placeholder="Всего" value="0">
-                            <input type="number" id="slot7Used" name="slot7Used" min="0" max="10" placeholder="Исп." value="0">
-                        </div>
-                        <div class="slot-item">
-                            <label>Уровень 8</label>
-                            <input type="number" id="slot8Total" name="slot8Total" min="0" max="10" placeholder="Всего" value="0">
-                            <input type="number" id="slot8Used" name="slot8Used" min="0" max="10" placeholder="Исп." value="0">
-                        </div>
-                        <div class="slot-item">
-                            <label>Уровень 9</label>
-                            <input type="number" id="slot9Total" name="slot9Total" min="0" max="10" placeholder="Всего" value="0">
-                            <input type="number" id="slot9Used" name="slot9Used" min="0" max="10" placeholder="Исп." value="0">
-                        </div>
+                <h3>Ячейки заклинаний</h3>
+                <div class="spell-slots">
+                    <div class="slot-row">
+                        <label>Уровень 1:</label>
+                        <input type="number" id="spellSlots1" name="spellSlots1" min="0" max="10" value="0" placeholder="Всего">
+                        <input type="number" id="spellSlots1Used" name="spellSlots1Used" min="0" max="10" value="0" placeholder="Использовано">
+                    </div>
+                    <div class="slot-row">
+                        <label>Уровень 2:</label>
+                        <input type="number" id="spellSlots2" name="spellSlots2" min="0" max="10" value="0" placeholder="Всего">
+                        <input type="number" id="spellSlots2Used" name="spellSlots2Used" min="0" max="10" value="0" placeholder="Использовано">
+                    </div>
+                    <div class="slot-row">
+                        <label>Уровень 3:</label>
+                        <input type="number" id="spellSlots3" name="spellSlots3" min="0" max="10" value="0" placeholder="Всего">
+                        <input type="number" id="spellSlots3Used" name="spellSlots3Used" min="0" max="10" value="0" placeholder="Использовано">
+                    </div>
+                    <div class="slot-row">
+                        <label>Уровень 4:</label>
+                        <input type="number" id="spellSlots4" name="spellSlots4" min="0" max="10" value="0" placeholder="Всего">
+                        <input type="number" id="spellSlots4Used" name="spellSlots4Used" min="0" max="10" value="0" placeholder="Использовано">
+                    </div>
+                    <div class="slot-row">
+                        <label>Уровень 5:</label>
+                        <input type="number" id="spellSlots5" name="spellSlots5" min="0" max="10" value="0" placeholder="Всего">
+                        <input type="number" id="spellSlots5Used" name="spellSlots5Used" min="0" max="10" value="0" placeholder="Использовано">
+                    </div>
+                    <div class="slot-row">
+                        <label>Уровень 6:</label>
+                        <input type="number" id="spellSlots6" name="spellSlots6" min="0" max="10" value="0" placeholder="Всего">
+                        <input type="number" id="spellSlots6Used" name="spellSlots6Used" min="0" max="10" value="0" placeholder="Использовано">
+                    </div>
+                    <div class="slot-row">
+                        <label>Уровень 7:</label>
+                        <input type="number" id="spellSlots7" name="spellSlots7" min="0" max="10" value="0" placeholder="Всего">
+                        <input type="number" id="spellSlots7Used" name="spellSlots7Used" min="0" max="10" value="0" placeholder="Использовано">
+                    </div>
+                    <div class="slot-row">
+                        <label>Уровень 8:</label>
+                        <input type="number" id="spellSlots8" name="spellSlots8" min="0" max="10" value="0" placeholder="Всего">
+                        <input type="number" id="spellSlots8Used" name="spellSlots8Used" min="0" max="10" value="0" placeholder="Использовано">
+                    </div>
+                    <div class="slot-row">
+                        <label>Уровень 9:</label>
+                        <input type="number" id="spellSlots9" name="spellSlots9" min="0" max="10" value="0" placeholder="Всего">
+                        <input type="number" id="spellSlots9Used" name="spellSlots9Used" min="0" max="10" value="0" placeholder="Использовано">
                     </div>
                 </div>
 
-                <div class="spells-known-section">
-                    <h3>Известные заклинания</h3>
-                    <div id="spellsList">
-                        <div class="spell-entry">
-                            <input type="text" name="spellName[]" placeholder="Название заклинания">
-                            <input type="number" name="spellLevel[]" placeholder="Уровень" min="0" max="9">
-                            <input type="text" name="spellSchool[]" placeholder="Школа">
-                            <textarea name="spellDescription[]" placeholder="Описание" rows="2"></textarea>
-                            <button type="button" class="remove-btn" onclick="removeSpell(this)">×</button>
-                        </div>
+                <div class="form-group">
+                    <label for="spellsList">Известные заклинания</label>
+                    <textarea id="spellsList" name="spellsList" rows="10" placeholder="Перечислите заклинания"></textarea>
+                </div>
+            </section>
+
+            <!-- Броски кубов -->
+            <section id="dice" class="tab-content">
+                <h2>🎲 Броски кубов</h2>
+                <div class="dice-roller">
+                    <div class="dice-buttons">
+                        <button type="button" onclick="rollDice('d4')">d4</button>
+                        <button type="button" onclick="rollDice('d6')">d6</button>
+                        <button type="button" onclick="rollDice('d8')">d8</button>
+                        <button type="button" onclick="rollDice('d10')">d10</button>
+                        <button type="button" onclick="rollDice('d12')">d12</button>
+                        <button type="button" onclick="rollDice('d20')">d20</button>
+                        <button type="button" onclick="rollDice('d100')">d100</button>
                     </div>
-                    <button type="button" class="add-btn" onclick="addSpell()">+ Добавить заклинание</button>
+                    <div class="custom-roll">
+                        <input type="text" id="customDice" placeholder="Например: 2d6+3 или 3d8">
+                        <button type="button" onclick="rollCustomDice()">Бросить</button>
+                    </div>
+                    <div class="dice-history" id="diceHistory">
+                        <h3>История бросков</h3>
+                        <div id="diceResults"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Панель мастера -->
+            <section id="dm" class="tab-content">
+                <h2>👑 Панель Мастера</h2>
+                <div class="dm-section">
+                    <h3>Управление персонажами</h3>
+                    <div id="dmCharactersList">
+                        <p>Загрузка списка персонажей...</p>
+                    </div>
+                    
+                    <h3>Добавить опыт</h3>
+                    <div class="xp-form">
+                        <select id="dmCharSelect">
+                            <option value="">Выберите персонажа</option>
+                        </select>
+                        <input type="number" id="xpAmount" placeholder="Количество опыта" min="0">
+                        <button type="button" onclick="addXP()">Добавить опыт</button>
+                    </div>
+
+                    <h3>Игроки в комнате</h3>
+                    <div id="playersList">
+                        <p>Нет игроков</p>
+                    </div>
                 </div>
             </section>
         </form>
 
         <div class="action-buttons">
-            <button type="button" id="saveBtn" onclick="saveCharacter()">💾 Сохранить персонажа</button>
-            <button type="button" id="loadBtn" onclick="loadCharacter()">📂 Загрузить персонажа</button>
-            <button type="button" id="exportBtn" onclick="exportCharacter()">📤 Экспорт в JSON</button>
-            <button type="button" id="importBtn" onclick="document.getElementById('importFile').click()">📥 Импорт из JSON</button>
+            <button type="button" class="save-btn" onclick="saveCharacter()">💾 Сохранить</button>
+            <button type="button" class="load-btn" onclick="loadCharacter()">📂 Загрузить</button>
+            <button type="button" class="export-btn" onclick="exportCharacter()">📤 Экспорт</button>
+            <button type="button" class="import-btn" onclick="document.getElementById('importFile').click()">📥 Импорт</button>
             <input type="file" id="importFile" accept=".json" style="display: none;" onchange="importCharacter(event)">
-            <button type="button" id="printBtn" onclick="window.print()">🖨️ Печать</button>
-            <button type="button" id="newBtn" onclick="newCharacter()">🆕 Новый персонаж</button>
         </div>
     </main>
 
-    <footer>
-        <p>&copy; 2024 DiceFall - Помощник для D&D 5e</p>
-    </footer>
-
-    <script src="script.js"></script>
+    <script src="/static/js/script.js"></script>
 </body>
 </html>
