@@ -1,0 +1,632 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    color: #eee;
+    min-height: 100vh;
+}
+
+header {
+    background: rgba(0, 0, 0, 0.3);
+    padding: 1rem 2rem;
+    text-align: center;
+    border-bottom: 2px solid #4a4a6a;
+}
+
+header h1 {
+    color: #ffd700;
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.subtitle {
+    color: #aaa;
+    font-size: 1.1rem;
+}
+
+.room-info {
+    margin-top: 1rem;
+    padding: 0.5rem;
+    background: rgba(255, 215, 0, 0.1);
+    border-radius: 5px;
+    display: inline-block;
+}
+
+.room-info span {
+    margin: 0 1rem;
+}
+
+/* Lobby Styles */
+#lobbySection {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 80vh;
+    padding: 2rem;
+}
+
+.lobby-container {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 3rem;
+    border-radius: 15px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    max-width: 900px;
+    width: 100%;
+}
+
+.lobby-container h2 {
+    text-align: center;
+    margin-bottom: 2rem;
+    color: #ffd700;
+}
+
+.lobby-options {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+}
+
+.lobby-card {
+    background: rgba(0, 0, 0, 0.3);
+    padding: 2rem;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 215, 0, 0.2);
+}
+
+.lobby-card h3 {
+    color: #ffd700;
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+.lobby-card input {
+    width: 100%;
+    padding: 0.8rem;
+    margin-bottom: 1rem;
+    border: 1px solid #4a4a6a;
+    border-radius: 5px;
+    background: rgba(255, 255, 255, 0.1);
+    color: #eee;
+}
+
+.lobby-card button {
+    width: 100%;
+    padding: 0.8rem;
+    background: linear-gradient(135deg, #ffd700 0%, #ff8c00 100%);
+    border: none;
+    border-radius: 5px;
+    color: #1a1a2e;
+    font-weight: bold;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.lobby-card button:hover {
+    transform: scale(1.05);
+}
+
+/* Main Interface */
+#mainInterface {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 1rem;
+}
+
+.tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    background: rgba(0, 0, 0, 0.3);
+    padding: 0.5rem;
+    border-radius: 10px;
+}
+
+.tab-btn {
+    padding: 0.8rem 1.5rem;
+    background: transparent;
+    border: 1px solid #4a4a6a;
+    color: #aaa;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.tab-btn:hover {
+    background: rgba(255, 215, 0, 0.1);
+    color: #ffd700;
+}
+
+.tab-btn.active {
+    background: linear-gradient(135deg, #ffd700 0%, #ff8c00 100%);
+    color: #1a1a2e;
+    border-color: #ffd700;
+}
+
+.tab-content {
+    display: none;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 2rem;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.tab-content.active {
+    display: block;
+}
+
+.tab-content h2 {
+    color: #ffd700;
+    margin-bottom: 1.5rem;
+    border-bottom: 2px solid #4a4a6a;
+    padding-bottom: 0.5rem;
+}
+
+.tab-content h3 {
+    color: #ff8c00;
+    margin: 1.5rem 0 1rem;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+}
+
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-group.full-width {
+    grid-column: 1 / -1;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: #aaa;
+    font-size: 0.9rem;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 0.8rem;
+    border: 1px solid #4a4a6a;
+    border-radius: 5px;
+    background: rgba(255, 255, 255, 0.1);
+    color: #eee;
+    font-size: 1rem;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: #ffd700;
+}
+
+.form-group small {
+    display: block;
+    margin-top: 0.3rem;
+    color: #888;
+    font-size: 0.8rem;
+}
+
+/* Abilities */
+.abilities-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.ability-score {
+    background: rgba(0, 0, 0, 0.3);
+    padding: 1rem;
+    border-radius: 10px;
+    text-align: center;
+    border: 1px solid #4a4a6a;
+}
+
+.ability-score label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: #aaa;
+    font-weight: bold;
+}
+
+.ability-score input {
+    width: 80px;
+    text-align: center;
+    margin-bottom: 0.5rem;
+}
+
+.modifier {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #ffd700;
+    margin: 0.5rem 0;
+}
+
+.check-btn {
+    background: linear-gradient(135deg, #4a4a6a 0%, #2a2a4a 100%);
+    border: none;
+    padding: 0.5rem 1rem;
+    color: #eee;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 0.5rem;
+}
+
+.check-btn:hover {
+    background: linear-gradient(135deg, #ffd700 0%, #ff8c00 100%);
+    color: #1a1a2e;
+}
+
+/* Saving Throws */
+.saving-throws {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 0.5rem;
+}
+
+.save-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 5px;
+}
+
+.save-item input[type="checkbox"] {
+    width: auto;
+}
+
+.save-bonus {
+    margin-left: auto;
+    color: #ffd700;
+    font-weight: bold;
+}
+
+/* HP Section */
+.hp-inputs {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+}
+
+/* Skills */
+.skills-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 0.5rem;
+}
+
+.skill-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 5px;
+}
+
+.skill-item input[type="checkbox"] {
+    width: auto;
+}
+
+.skill-bonus {
+    margin-left: auto;
+    color: #ffd700;
+    font-weight: bold;
+    min-width: 40px;
+    text-align: right;
+}
+
+.check-btn-small {
+    background: transparent;
+    border: 1px solid #4a4a6a;
+    padding: 0.2rem 0.5rem;
+    border-radius: 3px;
+    cursor: pointer;
+    margin-left: 0.5rem;
+}
+
+.check-btn-small:hover {
+    background: rgba(255, 215, 0, 0.2);
+}
+
+.passive-perception {
+    margin-top: 1.5rem;
+    text-align: center;
+    padding: 1rem;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 10px;
+}
+
+.passive-value {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #ffd700;
+    margin-top: 0.5rem;
+}
+
+/* Weapons */
+.weapon-entry {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr auto;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+    align-items: center;
+}
+
+.weapon-entry input {
+    padding: 0.5rem;
+}
+
+.remove-btn {
+    background: #dc3545;
+    border: none;
+    color: white;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+.add-btn {
+    background: #28a745;
+    border: none;
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 0.5rem;
+}
+
+/* Currency */
+.currency-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 1rem;
+}
+
+/* Spell Slots */
+.spell-slots {
+    display: grid;
+    gap: 0.5rem;
+}
+
+.slot-row {
+    display: grid;
+    grid-template-columns: 100px 1fr 1fr;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.slot-row input {
+    padding: 0.5rem;
+    text-align: center;
+}
+
+.spellcasting-section {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+/* Dice Roller */
+.dice-roller {
+    text-align: center;
+}
+
+.dice-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.dice-buttons button {
+    background: linear-gradient(135deg, #4a4a6a 0%, #2a2a4a 100%);
+    border: 2px solid #ffd700;
+    color: #ffd700;
+    padding: 1rem 1.5rem;
+    font-size: 1.2rem;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.dice-buttons button:hover {
+    background: linear-gradient(135deg, #ffd700 0%, #ff8c00 100%);
+    color: #1a1a2e;
+    transform: scale(1.1);
+}
+
+.custom-roll {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+}
+
+.custom-roll input {
+    width: 200px;
+    padding: 0.8rem;
+    border: 1px solid #4a4a6a;
+    border-radius: 5px;
+    background: rgba(255, 255, 255, 0.1);
+    color: #eee;
+}
+
+.custom-roll button {
+    background: linear-gradient(135deg, #ffd700 0%, #ff8c00 100%);
+    border: none;
+    padding: 0.8rem 1.5rem;
+    border-radius: 5px;
+    color: #1a1a2e;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.dice-history {
+    background: rgba(0, 0, 0, 0.3);
+    padding: 1rem;
+    border-radius: 10px;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.dice-result {
+    padding: 0.8rem;
+    margin: 0.5rem 0;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 5px;
+    border-left: 4px solid #ffd700;
+}
+
+.dice-result.crit-success {
+    border-left-color: #28a745;
+    background: rgba(40, 167, 69, 0.2);
+}
+
+.dice-result.crit-fail {
+    border-left-color: #dc3545;
+    background: rgba(220, 53, 69, 0.2);
+}
+
+.dice-result .roller {
+    font-weight: bold;
+    color: #ffd700;
+}
+
+.dice-result .total {
+    font-size: 1.3rem;
+    font-weight: bold;
+    color: #fff;
+}
+
+/* DM Panel */
+.dm-section {
+    background: rgba(255, 215, 0, 0.05);
+    padding: 1.5rem;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 215, 0, 0.2);
+}
+
+.xp-form {
+    display: flex;
+    gap: 0.5rem;
+    margin: 1rem 0;
+    flex-wrap: wrap;
+}
+
+.xp-form select,
+.xp-form input {
+    padding: 0.5rem;
+    border: 1px solid #4a4a6a;
+    border-radius: 5px;
+    background: rgba(255, 255, 255, 0.1);
+    color: #eee;
+}
+
+.xp-form button {
+    background: linear-gradient(135deg, #ffd700 0%, #ff8c00 100%);
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 5px;
+    color: #1a1a2e;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+#playersList,
+#dmCharactersList {
+    background: rgba(0, 0, 0, 0.2);
+    padding: 1rem;
+    border-radius: 5px;
+    margin: 1rem 0;
+}
+
+/* Action Buttons */
+.action-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 2rem;
+    flex-wrap: wrap;
+}
+
+.action-buttons button {
+    padding: 1rem 2rem;
+    border: none;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.save-btn {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    color: white;
+}
+
+.load-btn {
+    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+    color: white;
+}
+
+.export-btn {
+    background: linear-gradient(135deg, #6f42c1 0%, #5a32a3 100%);
+    color: white;
+}
+
+.import-btn {
+    background: linear-gradient(135deg, #fd7e14 0%, #e8590c 100%);
+    color: white;
+}
+
+.action-buttons button:hover {
+    transform: scale(1.05);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .lobby-options {
+        grid-template-columns: 1fr;
+    }
+
+    .tabs {
+        justify-content: center;
+    }
+
+    .weapon-entry {
+        grid-template-columns: 1fr;
+    }
+
+    .slot-row {
+        grid-template-columns: 1fr;
+    }
+
+    .action-buttons {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .action-buttons button {
+        width: 100%;
+    }
+}
