@@ -1,0 +1,492 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    color: #e0e0e0;
+    min-height: 100vh;
+    line-height: 1.6;
+}
+
+header {
+    background: linear-gradient(90deg, #0f3460 0%, #e94560 100%);
+    padding: 2rem;
+    text-align: center;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+}
+
+header h1 {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+    color: #fff;
+}
+
+.subtitle {
+    color: #ccc;
+    font-size: 1.1rem;
+}
+
+main {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+}
+
+.tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+    background: #0f3460;
+    padding: 1rem;
+    border-radius: 8px;
+}
+
+.tab-btn {
+    background: transparent;
+    border: 2px solid #e94560;
+    color: #e0e0e0;
+    padding: 0.75rem 1.5rem;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: bold;
+    flex: 1 1 auto;
+    text-align: center;
+}
+
+.tab-btn:hover {
+    background: rgba(233, 69, 96, 0.2);
+}
+
+.tab-btn.active {
+    background: #e94560;
+    color: #fff;
+}
+
+.tab-content {
+    display: none;
+    background: #16213e;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    animation: fadeIn 0.3s ease;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+h2 {
+    color: #e94560;
+    margin-bottom: 1.5rem;
+    border-bottom: 2px solid #0f3460;
+    padding-bottom: 0.5rem;
+}
+
+h3 {
+    color: #e94560;
+    margin: 1.5rem 0 1rem;
+    font-size: 1.2rem;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+}
+
+.form-group {
+    margin-bottom: 1rem;
+}
+
+label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: #a0a0a0;
+    font-weight: 500;
+}
+
+input[type="text"],
+input[type="number"],
+select,
+textarea {
+    width: 100%;
+    padding: 0.75rem;
+    border: 2px solid #0f3460;
+    border-radius: 5px;
+    background: #1a1a2e;
+    color: #e0e0e0;
+    font-size: 1rem;
+    transition: border-color 0.3s ease;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+    outline: none;
+    border-color: #e94560;
+}
+
+textarea {
+    resize: vertical;
+}
+
+/* Характеристики */
+.abilities-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.ability-score {
+    background: #0f3460;
+    padding: 1.5rem;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.ability-score label {
+    color: #fff;
+    margin-bottom: 1rem;
+}
+
+.ability-score input {
+    width: 80px;
+    text-align: center;
+    margin-bottom: 0.5rem;
+}
+
+.modifier {
+    background: #e94560;
+    color: #fff;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-weight: bold;
+    font-size: 1.2rem;
+    display: inline-block;
+    min-width: 60px;
+}
+
+/* Спасброски */
+.saving-throws {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+.save-item {
+    background: #0f3460;
+    padding: 1rem;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.save-item input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+}
+
+.save-bonus {
+    margin-left: auto;
+    background: #e94560;
+    padding: 0.25rem 0.75rem;
+    border-radius: 15px;
+    font-weight: bold;
+}
+
+/* HP секция */
+.hp-inputs {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+}
+
+.hp-section,
+.hit-dice-section,
+.ac-section,
+.weapons-section,
+.armor-section {
+    background: #0f3460;
+    padding: 1.5rem;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+}
+
+/* Навыки */
+.skills-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+}
+
+.skill-item {
+    background: #0f3460;
+    padding: 0.75rem 1rem;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.skill-item input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+}
+
+.skill-bonus {
+    margin-left: auto;
+    background: #e94560;
+    padding: 0.25rem 0.75rem;
+    border-radius: 15px;
+    font-weight: bold;
+    font-size: 0.9rem;
+}
+
+.passive-perception,
+.proficiency-section {
+    background: #0f3460;
+    padding: 1.5rem;
+    border-radius: 8px;
+    margin-top: 1.5rem;
+}
+
+/* Оружие и предметы */
+.weapon-entry,
+.item-entry,
+.feat-entry,
+.spell-entry {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr auto;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+    align-items: center;
+}
+
+.feat-entry,
+.spell-entry {
+    grid-template-columns: 1fr 2fr auto;
+}
+
+.spell-entry {
+    grid-template-columns: 2fr 0.5fr 1fr 2fr auto;
+}
+
+.remove-btn {
+    background: #e94560;
+    color: #fff;
+    border: none;
+    width: 35px;
+    height: 35px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1.5rem;
+    transition: background 0.3s ease;
+}
+
+.remove-btn:hover {
+    background: #ff6b6b;
+}
+
+.add-btn {
+    background: #0f3460;
+    color: #e94560;
+    border: 2px solid #e94560;
+    padding: 0.75rem 1.5rem;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    margin-top: 0.5rem;
+}
+
+.add-btn:hover {
+    background: #e94560;
+    color: #fff;
+}
+
+/* Деньги */
+.money-inputs {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 1rem;
+}
+
+.money-section,
+.inventory-section,
+.equipment-section {
+    background: #0f3460;
+    padding: 1.5rem;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+}
+
+/* Ячейки заклинаний */
+.slots-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+}
+
+.slot-item {
+    background: #0f3460;
+    padding: 1rem;
+    border-radius: 5px;
+    text-align: center;
+}
+
+.slot-item label {
+    display: block;
+    margin-bottom: 0.75rem;
+    color: #fff;
+}
+
+.slot-item input {
+    width: 60px;
+    text-align: center;
+    margin: 0.25rem;
+}
+
+.spellcasting-section,
+.spell-slots-section,
+.spells-known-section {
+    background: #0f3460;
+    padding: 1.5rem;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+}
+
+/* Кнопки действий */
+.action-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 2rem;
+    padding: 1.5rem;
+    background: #0f3460;
+    border-radius: 8px;
+}
+
+.action-buttons button {
+    background: #e94560;
+    color: #fff;
+    border: none;
+    padding: 1rem 2rem;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.action-buttons button:hover {
+    background: #ff6b6b;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(233, 69, 96, 0.4);
+}
+
+footer {
+    text-align: center;
+    padding: 2rem;
+    color: #666;
+    margin-top: 2rem;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    header h1 {
+        font-size: 1.8rem;
+    }
+
+    .tabs {
+        flex-direction: column;
+    }
+
+    .tab-btn {
+        width: 100%;
+    }
+
+    .weapon-entry,
+    .item-entry,
+    .feat-entry,
+    .spell-entry {
+        grid-template-columns: 1fr;
+    }
+
+    .remove-btn {
+        width: 100%;
+        margin-top: 0.5rem;
+    }
+
+    .action-buttons {
+        flex-direction: column;
+    }
+
+    .action-buttons button {
+        width: 100%;
+    }
+}
+
+/* Печать */
+@media print {
+    body {
+        background: #fff;
+        color: #000;
+    }
+
+    header {
+        background: #333;
+        color: #fff;
+    }
+
+    .tabs,
+    .action-buttons {
+        display: none;
+    }
+
+    .tab-content {
+        display: block !important;
+        background: #fff;
+        color: #000;
+        box-shadow: none;
+        margin-bottom: 2rem;
+        page-break-inside: avoid;
+    }
+
+    h2,
+    h3 {
+        color: #000;
+        border-bottom-color: #333;
+    }
+
+    input,
+    select,
+    textarea {
+        border: 1px solid #ccc;
+        background: #fff;
+        color: #000;
+    }
+
+    .modifier,
+    .save-bonus,
+    .skill-bonus {
+        background: #333;
+        color: #fff;
+    }
+}
