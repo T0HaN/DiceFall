@@ -103,6 +103,17 @@ async function joinRoom() {
     }
     
     try {
+        // Сначала устанавливаем переменные и подключаем WebSocket
+        currentRoomCode = roomCode;
+        userType = 'player';
+        username = playerName;
+        
+        // Подключаем WebSocket ДО основного интерфейса
+        connectSocket(roomCode, 'player', playerName);
+        
+        // Небольшая задержка для установки соединения
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
         const response = await fetch('/api/join_room', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -112,10 +123,6 @@ async function joinRoom() {
         const data = await response.json();
         
         if (data.success) {
-            currentRoomCode = roomCode;
-            userType = 'player';
-            username = playerName;
-            connectSocket(roomCode, 'player', playerName);
             showMainInterface();
         } else {
             alert('Ошибка: ' + data.error);
@@ -135,7 +142,26 @@ function showMainInterface() {
     
     if (userType === 'master') {
         document.getElementById('dmTab').style.display = 'block';
+    } else {
+        // Игрок не может редактировать - скрываем кнопки действий и делаем поля только для чтения
+        document.getElementById('actionButtons').style.display = 'none';
+        makeFormReadOnly();
     }
+}
+
+// Сделать форму только для чтения (для игроков)
+function makeFormReadOnly() {
+    const form = document.getElementById('characterSheet');
+    const inputs = form.querySelectorAll('input, select, textarea');
+    inputs.forEach(input => {
+        if (input.type !== 'button' && input.tagName !== 'BUTTON') {
+            input.readOnly = true;
+            input.disabled = true;
+        }
+    });
+    // Скрываем кнопки добавления/удаления оружия, заклинаний и т.д.
+    const actionBtns = form.querySelectorAll('.add-btn, .remove-btn');
+    actionBtns.forEach(btn => btn.style.display = 'none');
 }
 
 // Подключение WebSocket
@@ -159,7 +185,9 @@ function connectSocket(roomCode, type, name) {
     socket.on('characters_list', (data) => {
         console.log('Список персонажей:', data);
         charactersInRoom = data.characters || {};
-        updateDMCharactersList();
+        if (userType === 'master') {
+            updateDMCharactersList();
+        }
     });
     
     socket.on('character_updated', (data) => {
@@ -168,7 +196,9 @@ function connectSocket(roomCode, type, name) {
             loadCharacterData(data.character);
         }
         charactersInRoom[data.char_id] = data.character;
-        updateDMCharactersList();
+        if (userType === 'master') {
+            updateDMCharactersList();
+        }
     });
     
     socket.on('dice_rolled', (data) => {
