@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DiceFall - Помощник Мастера Подземелий D&D 5e</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <h1>🎲 DiceFall</h1>
+        <p class="subtitle">Помощник Мастера Подземелий D&D 5e</p>
+    </header>
+
+    <main>
+        <nav class="tabs">
+            <button class="tab-btn active" data-tab="basic">Основное</button>
+            <button class="tab-btn" data-tab="abilities">Характеристики</button>
+            <button class="tab-btn" data-tab="combat">Бой</button>
+            <button class="tab-btn" data-tab="skills">Навыки</button>
+            <button class="tab-btn" data-tab="features">Особенности</button>
+            <button class="tab-btn" data-tab="inventory">Инвентарь</button>
+            <button class="tab-btn" data-tab="spells">Заклинания</button>
+        </nav>
+
+        <form id="characterSheet">
+            <!-- Основная информация -->
+            <section id="basic" class="tab-content active">
+                <h2>Основная информация</h2>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="charName">Имя персонажа</label>
+                        <input type="text" id="charName" name="charName" placeholder="Введите имя">
+                    </div>
+                    <div class="form-group">
+                        <label for="charClass">Класс</label>
+                        <select id="charClass" name="charClass">
+                            <option value="">Выберите класс</option>
+                            <option value="barbarian">Варвар</option>
+                            <option value="bard">Бард</option>
+                            <option value="cleric">Жрец</option>
+                            <option value="druid">Друид</option>
+                            <option value="fighter">Воин</option>
+                            <option value="monk">Монах</option>
+                            <option value="paladin">Паладин</option>
+                            <option value="ranger">Следопыт</option>
+                            <option value="rogue">Плут</option>
+                            <option value="sorcerer">Чародей</option>
+                            <option value="warlock">Колдун</option>
+                            <option value="wizard">Волшебник</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="charLevel">Уровень</label>
+                        <input type="number" id="charLevel" name="charLevel" min="1" max="20" value="1">
+                    </div>
+                    <div class="form-group">
+                        <label for="charRace">Раса</label>
+                        <select id="charRace" name="charRace">
+                            <option value="">Выберите расу</option>
+                            <option value="human">Человек</option>
+                            <option value="elf">Эльф</option>
+                            <option value="dwarf">Дварф</option>
+                            <option value="halfling">Халфлинг</option>
+                            <option value="dragonborn">Драконорожденный</option>
+                            <option value="gnome">Гном</option>
+                            <option value="half-elf">Полуэльф</option>
+                            <option value="half-orc">Полуорк</option>
+                            <option value="tiefling">Тифлинг</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="charAlignment">Мировоззрение</label>
+                        <select id="charAlignment" name="charAlignment">
+                            <option value="">Выберите мировоззрение</option>
+                            <option value="lg">Законопослушно-доброе</option>
+                            <option value="ng">Нейтрально-доброе</option>
+                            <option value="cg">Хаотично-доброе</option>
+                            <option value="ln">Законопослушно-нейтральное</option>
+                            <option value="tn">Истинно-нейтральное</option>
+                            <option value="cn">Хаотично-нейтральное</option>
+                            <option value="le">Законопослушно-злое</option>
+                            <option value="ne">Нейтрально-злое</option>
+                            <option value="ce">Хаотично-злое</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="charExp">Опыт (XP)</label>
+                        <input type="number" id="charExp" name="charExp" min="0" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label for="charBackground">Предыстория</label>
+                        <input type="text" id="charBackground" name="charBackground" placeholder="Предыстория персонажа">
+                    </div>
+                    <div class="form-group">
+                        <label for="charLanguages">Языки</label>
+                        <textarea id="charLanguages" name="charLanguages" rows="3" placeholder="Перечислите языки"></textarea>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Характеристики -->
+            <section id="abilities" class="tab-content">
+                <h2>Характеристики</h2>
+                <div class="abilities-grid">
+                    <div class="ability-score">
+                        <label>Сила (STR)</label>
+                        <input type="number" id="strScore" name="strScore" min="1" max="30" value="10" onchange="calculateModifiers()">
+                        <div class="modifier" id="strMod">+0</div>
+                    </div>
+                    <div class="ability-score">
+                        <label>Ловкость (DEX)</label>
+                        <input type="number" id="dexScore" name="dexScore" min="1" max="30" value="10" onchange="calculateModifiers()">
+                        <div class="modifier" id="dexMod">+0</div>
+                    </div>
+                    <div class="ability-score">
+                        <label>Телосложение (CON)</label>
+                        <input type="number" id="conScore" name="conScore" min="1" max="30" value="10" onchange="calculateModifiers()">
+                        <div class="modifier" id="conMod">+0</div>
+                    </div>
+                    <div class="ability-score">
+                        <label>Интеллект (INT)</label>
+                        <input type="number" id="intScore" name="intScore" min="1" max="30" value="10" onchange="calculateModifiers()">
+                        <div class="modifier" id="intMod">+0</div>
+                    </div>
+                    <div class="ability-score">
+                        <label>Мудрость (WIS)</label>
+                        <input type="number" id="wisScore" name="wisScore" min="1" max="30" value="10" onchange="calculateModifiers()">
+                        <div class="modifier" id="wisMod">+0</div>
+                    </div>
+                    <div class="ability-score">
+                        <label>Харизма (CHA)</label>
+                        <input type="number" id="chaScore" name="chaScore" min="1" max="30" value="10" onchange="calculateModifiers()">
+                        <div class="modifier" id="chaMod">+0</div>
+                    </div>
+                </div>
+
+                <h3>Спасброски</h3>
+                <div class="saving-throws">
+                    <div class="save-item">
+                        <input type="checkbox" id="strSaveProf" name="strSaveProf">
+                        <label for="strSaveProf">Сила</label>
+                        <span class="save-bonus" id="strSaveBonus">+0</span>
+                    </div>
+                    <div class="save-item">
+                        <input type="checkbox" id="dexSaveProf" name="dexSaveProf">
+                        <label for="dexSaveProf">Ловкость</label>
+                        <span class="save-bonus" id="dexSaveBonus">+0</span>
+                    </div>
+                    <div class="save-item">
+                        <input type="checkbox" id="conSaveProf" name="conSaveProf">
+                        <label for="conSaveProf">Телосложение</label>
+                        <span class="save-bonus" id="conSaveBonus">+0</span>
+                    </div>
+                    <div class="save-item">
+                        <input type="checkbox" id="intSaveProf" name="intSaveProf">
+                        <label for="intSaveProf">Интеллект</label>
+                        <span class="save-bonus" id="intSaveBonus">+0</span>
+                    </div>
+                    <div class="save-item">
+                        <input type="checkbox" id="wisSaveProf" name="wisSaveProf">
+                        <label for="wisSaveProf">Мудрость</label>
+                        <span class="save-bonus" id="wisSaveBonus">+0</span>
+                    </div>
+                    <div class="save-item">
+                        <input type="checkbox" id="chaSaveProf" name="chaSaveProf">
+                        <label for="chaSaveProf">Харизма</label>
+                        <span class="save-bonus" id="chaSaveBonus">+0</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Боевые характеристики -->
+            <section id="combat" class="tab-content">
+                <h2>Боевые характеристики</h2>
+                
+                <div class="hp-section">
+                    <h3>Очки здоровья</h3>
+                    <div class="hp-inputs">
+                        <div class="form-group">
+                            <label for="hpMax">Максимум HP</label>
+                            <input type="number" id="hpMax" name="hpMax" min="1" value="10">
+                        </div>
+                        <div class="form-group">
+                            <label for="hpCurrent">Текущие HP</label>
+                            <input type="number" id="hpCurrent" name="hpCurrent" min="0" value="10">
+                        </div>
+                        <div class="form-group">
+                            <label for="hpTemp">Временные HP</label>
+                            <input type="number" id="hpTemp" name="hpTemp" min="0" value="0">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="hit-dice-section">
+                    <h3>Кости хитов</h3>
+                    <div class="form-group">
+                        <label for="hitDiceType">Тип кости</label>
+                        <select id="hitDiceType" name="hitDiceType">
+                            <option value="d6">d6</option>
+                            <option value="d8" selected>d8</option>
+                            <option value="d10">d10</option>
+                            <option value="d12">d12</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="hitDiceTotal">Всего костей</label>
+                        <input type="number" id="hitDiceTotal" name="hitDiceTotal" min="1" max="20" value="1">
+                    </div>
+                    <div class="form-group">
+                        <label for="hitDiceUsed">Использовано</label>
+                        <input type="number" id="hitDiceUsed" name="hitDiceUsed" min="0" value="0">
+                    </div>
+                </div>
+
+                <div class="ac-section">
+                    <h3>Класс доспеха (AC)</h3>
+                    <div class="form-group">
+                        <label for="armorClass">КД (AC)</label>
+                        <input type="number" id="armorClass" name="armorClass" min="1" value="10">
+                    </div>
+                    <div class="form-group">
+                        <label for="initiative">Инициатива</label>
+                        <input type="number" id="initiative" name="initiative" value="0" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="speed">Скорость</label>
+                        <input type="number" id="speed" name="speed" min="0" value="30">
+                    </div>
+                </div>
+
+                <div class="weapons-section">
+                    <h3>Оружие и атаки</h3>
+                    <div id="weaponsList">
+                        <div class="weapon-entry">
+                            <input type="text" name="weaponName[]" placeholder="Название оружия">
+                            <input type="text" name="weaponBonus[]" placeholder="Бонус атаки">
+                            <input type="text" name="weaponDamage[]" placeholder="Урон">
+                            <input type="text" name="weaponType[]" placeholder="Тип урона">
+                            <button type="button" class="remove-btn" onclick="removeWeapon(this)">×</button>
+                        </div>
+                    </div>
+                    <button type="button" class="add-btn" onclick="addWeapon()">+ Добавить оружие</button>
+                </div>
+
+                <div class="armor-section">
+                    <h3>Броня</h3>
+                    <div class="form-group">
+                        <label for="armorType">Тип доспеха</label>
+                        <input type="text" id="armorType" name="armorType" placeholder="Например: Кольчуга">
+                    </div>
+                    <div class="form-group">
+                        <label for="armorBonus">Бонус доспеха</label>
+                        <input type="number" id="armorBonus" name="armorBonus" min="0" value="0">
+                    </div>
+                </div>
+            </section>
+
+            <!-- Навыки -->
+            <section id="skills" class="tab-content">
+                <h2>Навыки</h2>
+                <div class="skills-grid">
+                    <div class="skill-item">
+                        <input type="checkbox" id="skillAcrobatics" name="skillAcrobatics">
+                        <label for="skillAcrobatics">Акробатика (DEX)</label>
+                        <span class="skill-bonus" id="acrobaticsBonus">+0</span>
+                    </div>
+                    <div class="skill-item">
+                        <input type="checkbox" id="skillAnimalHandling" name="skillAnimalHandling">
+                        <label for="skillAnimalHandling">Обращение с животными (WIS)</label>
+                        <span class="skill-bonus" id="animalHandlingBonus">+0</span>
+                    </div>
+                    <div class="skill-item">
+                        <input type="checkbox" id="skillArcana" name="skillArcana">
+                        <label for="skillArcana">Магия (INT)</label>
+                        <span class="skill-bonus" id="arcanaBonus">+0</span>
+                    </div>
+                    <div class="skill-item">
+                        <input type="checkbox" id="skillAthletics" name="skillAthletics">
+                        <label for="skillAthletics">Атлетика (STR)</label>
+                        <span class="skill-bonus" id="athleticsBonus">+0</span>
+                    </div>
+                    <div class="skill-item">
+                        <input type="checkbox" id="skillDeception" name="skillDeception">
+                        <label for="skillDeception">Обман (CHA)</label>
+                        <span class="skill-bonus" id="deceptionBonus">+0</span>
+                    </div>
+                    <div class="skill-item">
+                        <input type="checkbox" id="skillHistory" name="skillHistory">
+                        <label for="skillHistory">История (INT)</label>
+                        <span class="skill-bonus" id="historyBonus">+0</span>
+                    </div>
+                    <div class="skill-item">
+                        <input type="checkbox" id="skillInsight" name="skillInsight">
+                        <label for="skillInsight">Проницательность (WIS)</label>
+                        <span class="skill-bonus" id="insightBonus">+0</span>
+                    </div>
+                    <div class="skill-item">
+                        <input type="checkbox" id="skillIntimidation" name="skillIntimidation">
+                        <label for="skillIntimidation">Запугивание (CHA)</label>
+                        <span class="skill-bonus" id="intimidationBonus">+0</span>
+                    </div>
+                    <div class="skill-item">
+                        <input type="checkbox" id="skillInvestigation" name="skillInvestigation">
+                        <label for="skillInvestigation">Анализ (INT)</label>
+                        <span class="skill-bonus" id="investigationBonus">+0</span>
+                    </div>
+                    <div class="skill-item">
+                        <input type="checkbox" id="skillMedicine" name="skillMedicine">
+                        <label for="skillMedicine">Медицина (WIS)</label>
+                        <span class="skill-bonus" id="medicineBonus">+0</span>
+                    </div>
+                    <div class="skill-item">
+                        <input type="checkbox" id="skillNature" name="skillNature">
+                        <label for="skillNature">Природа (INT)</label>
+                        <span class="skill-bonus" id="natureBonus">+0</span>
+                    </div>
+                    <div class="skill-item">
+                        <input type="checkbox" id="skillPerception" name="skillPerception">
+                        <label for="skillPerception">Внимательность (WIS)</label>
+                        <span class="skill-bonus" id="perceptionBonus">+0</span>
+                    </div>
+                    <div class="skill-item">
+                        <input type="checkbox" id="skillPerformance" name="skillPerformance">
+                        <label for="skillPerformance">Выступление (CHA)</label>
+                        <span class="skill-bonus" id="performanceBonus">+0</span>
+                    </div>
+                    <div class="skill-item">
+                        <input type="checkbox" id="skillPersuasion" name="skillPersuasion">
+                        <label for="skillPersuasion">Убеждение (CHA)</label>
+                        <span class="skill-bonus" id="persuasionBonus">+0</span>
+                    </div>
+                    <div class="skill-item">
+                        <input type="checkbox" id="skillReligion" name="skillReligion">
+                        <label for="skillReligion">Религия (INT)</label>
+                        <span class="skill-bonus" id="religionBonus">+0</span>
+                    </div>
+                    <div class="skill-item">
+                        <input type="checkbox" id="skillSleightOfHand" name="skillSleightOfHand">
+                        <label for="skillSleightOfHand">Ловкость рук (DEX)</label>
+                        <span class="skill-bonus" id="sleightOfHandBonus">+0</span>
+                    </div>
+                    <div class="skill-item">
+                        <input type="checkbox" id="skillStealth" name="skillStealth">
+                        <label for="skillStealth">Скрытность (DEX)</label>
+                        <span class="skill-bonus" id="stealthBonus">+0</span>
+                    </div>
+                    <div class="skill-item">
+                        <input type="checkbox" id="skillSurvival" name="skillSurvival">
+                        <label for="skillSurvival">Выживание (WIS)</label>
+                        <span class="skill-bonus" id="survivalBonus">+0</span>
+                    </div>
+                </div>
+
+                <div class="passive-perception">
+                    <h3>Пассивная внимательность</h3>
+                    <div class="form-group">
+                        <label for="passivePerception">Passive Perception</label>
+                        <input type="number" id="passivePerception" name="passivePerception" value="10" readonly>
+                    </div>
+                </div>
+
+                <div class="proficiency-section">
+                    <h3>Бонус мастерства</h3>
+                    <div class="form-group">
+                        <label for="proficiencyBonus">Бонус</label>
+                        <input type="number" id="proficiencyBonus" name="proficiencyBonus" value="2" readonly>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Особенности -->
+            <section id="features" class="tab-content">
+                <h2>Особенности</h2>
+                
+                <div class="class-features">
+                    <h3>Классовые особенности</h3>
+                    <textarea id="classFeatures" name="classFeatures" rows="5" placeholder="Опишите классовые особенности"></textarea>
+                </div>
+
+                <div class="racial-features">
+                    <h3>Расовые особенности</h3>
+                    <textarea id="racialFeatures" name="racialFeatures" rows="5" placeholder="Опишите расовые особенности"></textarea>
+                </div>
+
+                <div class="feats-section">
+                    <h3>Черты (Feats)</h3>
+                    <div id="featsList">
+                        <div class="feat-entry">
+                            <input type="text" name="featName[]" placeholder="Название черты">
+                            <textarea name="featDescription[]" placeholder="Описание" rows="2"></textarea>
+                            <button type="button" class="remove-btn" onclick="removeFeat(this)">×</button>
+                        </div>
+                    </div>
+                    <button type="button" class="add-btn" onclick="addFeat()">+ Добавить черту</button>
+                </div>
+            </section>
+
+            <!-- Инвентарь -->
+            <section id="inventory" class="tab-content">
+                <h2>Инвентарь и снаряжение</h2>
+                
+                <div class="money-section">
+                    <h3>Деньги</h3>
+                    <div class="money-inputs">
+                        <div class="form-group">
+                            <label for="goldPieces">Золото (GP)</label>
+                            <input type="number" id="goldPieces" name="goldPieces" min="0" value="0">
+                        </div>
+                        <div class="form-group">
+                            <label for="silverPieces">Серебро (SP)</label>
+                            <input type="number" id="silverPieces" name="silverPieces" min="0" value="0">
+                        </div>
+                        <div class="form-group">
+                            <label for="copperPieces">Медь (CP)</label>
+                            <input type="number" id="copperPieces" name="copperPieces" min="0" value="0">
+                        </div>
+                        <div class="form-group">
+                            <label for="electrumPieces">Электрум (EP)</label>
+                            <input type="number" id="electrumPieces" name="electrumPieces" min="0" value="0">
+                        </div>
+                        <div class="form-group">
+                            <label for="platinumPieces">Платина (PP)</label>
+                            <input type="number" id="platinumPieces" name="platinumPieces" min="0" value="0">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="inventory-section">
+                    <h3>Предметы</h3>
+                    <div id="itemsList">
+                        <div class="item-entry">
+                            <input type="text" name="itemName[]" placeholder="Название предмета">
+                            <input type="number" name="itemQuantity[]" placeholder="Кол-во" min="1" value="1">
+                            <input type="text" name="itemWeight[]" placeholder="Вес (фн)">
+                            <button type="button" class="remove-btn" onclick="removeItem(this)">×</button>
+                        </div>
+                    </div>
+                    <button type="button" class="add-btn" onclick="addItem()">+ Добавить предмет</button>
+                </div>
+
+                <div class="equipment-section">
+                    <h3>Снаряжение</h3>
+                    <textarea id="equipment" name="equipment" rows="5" placeholder="Перечислите снаряжение"></textarea>
+                </div>
+            </section>
+
+            <!-- Заклинания -->
+            <section id="spells" class="tab-content">
+                <h2>Заклинания</h2>
+                
+                <div class="spellcasting-section">
+                    <h3>Заклинательная способность</h3>
+                    <div class="form-group">
+                        <label for="spellAbility">Характеристика заклинаний</label>
+                        <select id="spellAbility" name="spellAbility">
+                            <option value="">Нет</option>
+                            <option value="int">Интеллект</option>
+                            <option value="wis">Мудрость</option>
+                            <option value="cha">Харизма</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="spellSaveDC">Сл спасброска</label>
+                        <input type="number" id="spellSaveDC" name="spellSaveDC" min="8" max="30" value="8" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="spellAttackBonus">Бонус атаки заклинанием</label>
+                        <input type="number" id="spellAttackBonus" name="spellAttackBonus" readonly>
+                    </div>
+                </div>
+
+                <div class="spell-slots-section">
+                    <h3>Ячейки заклинаний</h3>
+                    <div class="slots-grid">
+                        <div class="slot-item">
+                            <label>Уровень 1</label>
+                            <input type="number" id="slot1Total" name="slot1Total" min="0" max="10" placeholder="Всего" value="0">
+                            <input type="number" id="slot1Used" name="slot1Used" min="0" max="10" placeholder="Исп." value="0">
+                        </div>
+                        <div class="slot-item">
+                            <label>Уровень 2</label>
+                            <input type="number" id="slot2Total" name="slot2Total" min="0" max="10" placeholder="Всего" value="0">
+                            <input type="number" id="slot2Used" name="slot2Used" min="0" max="10" placeholder="Исп." value="0">
+                        </div>
+                        <div class="slot-item">
+                            <label>Уровень 3</label>
+                            <input type="number" id="slot3Total" name="slot3Total" min="0" max="10" placeholder="Всего" value="0">
+                            <input type="number" id="slot3Used" name="slot3Used" min="0" max="10" placeholder="Исп." value="0">
+                        </div>
+                        <div class="slot-item">
+                            <label>Уровень 4</label>
+                            <input type="number" id="slot4Total" name="slot4Total" min="0" max="10" placeholder="Всего" value="0">
+                            <input type="number" id="slot4Used" name="slot4Used" min="0" max="10" placeholder="Исп." value="0">
+                        </div>
+                        <div class="slot-item">
+                            <label>Уровень 5</label>
+                            <input type="number" id="slot5Total" name="slot5Total" min="0" max="10" placeholder="Всего" value="0">
+                            <input type="number" id="slot5Used" name="slot5Used" min="0" max="10" placeholder="Исп." value="0">
+                        </div>
+                        <div class="slot-item">
+                            <label>Уровень 6</label>
+                            <input type="number" id="slot6Total" name="slot6Total" min="0" max="10" placeholder="Всего" value="0">
+                            <input type="number" id="slot6Used" name="slot6Used" min="0" max="10" placeholder="Исп." value="0">
+                        </div>
+                        <div class="slot-item">
+                            <label>Уровень 7</label>
+                            <input type="number" id="slot7Total" name="slot7Total" min="0" max="10" placeholder="Всего" value="0">
+                            <input type="number" id="slot7Used" name="slot7Used" min="0" max="10" placeholder="Исп." value="0">
+                        </div>
+                        <div class="slot-item">
+                            <label>Уровень 8</label>
+                            <input type="number" id="slot8Total" name="slot8Total" min="0" max="10" placeholder="Всего" value="0">
+                            <input type="number" id="slot8Used" name="slot8Used" min="0" max="10" placeholder="Исп." value="0">
+                        </div>
+                        <div class="slot-item">
+                            <label>Уровень 9</label>
+                            <input type="number" id="slot9Total" name="slot9Total" min="0" max="10" placeholder="Всего" value="0">
+                            <input type="number" id="slot9Used" name="slot9Used" min="0" max="10" placeholder="Исп." value="0">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="spells-known-section">
+                    <h3>Известные заклинания</h3>
+                    <div id="spellsList">
+                        <div class="spell-entry">
+                            <input type="text" name="spellName[]" placeholder="Название заклинания">
+                            <input type="number" name="spellLevel[]" placeholder="Уровень" min="0" max="9">
+                            <input type="text" name="spellSchool[]" placeholder="Школа">
+                            <textarea name="spellDescription[]" placeholder="Описание" rows="2"></textarea>
+                            <button type="button" class="remove-btn" onclick="removeSpell(this)">×</button>
+                        </div>
+                    </div>
+                    <button type="button" class="add-btn" onclick="addSpell()">+ Добавить заклинание</button>
+                </div>
+            </section>
+        </form>
+
+        <div class="action-buttons">
+            <button type="button" id="saveBtn" onclick="saveCharacter()">💾 Сохранить персонажа</button>
+            <button type="button" id="loadBtn" onclick="loadCharacter()">📂 Загрузить персонажа</button>
+            <button type="button" id="exportBtn" onclick="exportCharacter()">📤 Экспорт в JSON</button>
+            <button type="button" id="importBtn" onclick="document.getElementById('importFile').click()">📥 Импорт из JSON</button>
+            <input type="file" id="importFile" accept=".json" style="display: none;" onchange="importCharacter(event)">
+            <button type="button" id="printBtn" onclick="window.print()">🖨️ Печать</button>
+            <button type="button" id="newBtn" onclick="newCharacter()">🆕 Новый персонаж</button>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 DiceFall - Помощник для D&D 5e</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
